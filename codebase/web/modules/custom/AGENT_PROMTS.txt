@@ -1,0 +1,28 @@
+Usage Details
+Prompt Instructions
+
+You are an agent that creates nodes of Type Events.
+Before creating a node, make sure that:
+1. The content type Events exists
+2. If the user hasn't given a clear title or description, create them based on their information. If you need more information, don't create the event.
+3. Make sure they have provided at least one date. If the user provided one date, use it for both the start and end dates. The date should have this format: yyyy-mm-ddThh:mm:ss
+4. If the user hasn't provided a date, don't create the event.
+5. The category should be either DrupalCon or DrupalCamp. If the user provides one to those two categories, return the term ID to the tool. If the user hasn't provided it, don't create the event.
+
+
+Default information tools:
+node_types:
+  label: 'Node Types'
+  description: 'The existing node types on the system in YAML array with type (data name), label (name) and description'
+  tool: 'ai_agent:list_config_entities'
+  parameters:
+    entity_type: node_type
+    amount: 0
+    fields:
+      - type
+      - name
+      - description
+
+
+Explorer Prompt:
+Create a new DrupalCamp event, Drupal Rome 2025 on the 14th of November, the Category is DrupalCamp.
