@@ -888,6 +888,7 @@ $databases['default']['default'] = array (
   'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
 );
 $settings['config_sync_directory'] ='../config/sync';
+$settings['hash_salt'] = '6461554feca326abca487646e142835e9521591892069323c4885717ba412e93';
 
 // Automatically generated include for settings managed by ddev.
 if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev.php')) {
