@@ -1,0 +1,6 @@
+services:
+  ai_provider_amazeeio.api_client:
+    class: Drupal\ai_provider_amazeeio\AmazeeIoApi\AmazeeClient
+    arguments: ['@http_client', '@logger.factory']
+  ai_provider_amazeeio.postgres_client:
+    class: Drupal\ai_provider_amazeeio\Vdb\Postgres\PostgresPgvectorClient

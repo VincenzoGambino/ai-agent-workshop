@@ -1,0 +1,11 @@
+it ad.idea/
+postgres-init
+mutagen.yml.lock
+.vscode
+#codebase/web/
+#codebase/vendor/
+codebase/.editorconfig
+codebase/.gitattributes
+.idea
+.ddev
+codebase/.ddev

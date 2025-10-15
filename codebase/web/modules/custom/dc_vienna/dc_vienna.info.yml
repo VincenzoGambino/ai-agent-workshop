@@ -1,0 +1,9 @@
+name: DrupalCon Vienna
+type: module
+description: DrupalCon Vienna Workshop.
+package: AI Tools
+core_version_requirement: ^10.3 || ^11
+lifecycle: stable
+
+dependencies:
+  - ai_agents:ai_agents

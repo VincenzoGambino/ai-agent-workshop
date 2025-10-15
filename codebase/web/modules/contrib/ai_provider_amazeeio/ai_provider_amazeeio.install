@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the amazee.ai AI Provider module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Install AI Search.
+ */
+function ai_provider_amazeeio_update_10001(): void {
+  \Drupal::service('module_installer')
+    ->install(['ai_search']);
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Set default model for chat_with_tools and chat_with_structured_response
+ * if not set.
+ */
+function ai_provider_amazeeio_update_10002() {
+  $ai_provider = \Drupal::service('ai.provider');
+  // By default, it has not changed anything.
+  $return_message = t('No changes made to amazee.ai provider default models.');
+  foreach (['chat_with_tools', 'chat_with_structured_response'] as $type) {
+    // If TRUE, it meant that it was needed to be set.
+    if ($ai_provider->defaultIfNone($type, 'amazeeio', 'claude-3-5-sonnet')) {
+      $return_message = t('amazee.ai provider default model set for relevant chat operation types.');
+    }
+  }
+  return $return_message;
+}

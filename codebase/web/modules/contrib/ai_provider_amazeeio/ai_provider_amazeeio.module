@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the amazee.ai AI provider.
+ */
+
+use Drupal\ai_search\Plugin\search_api\backend\SearchApiAiSearchBackend;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\user\UserInterface;
+use Drupal\Core\TempStore\TempStoreException;
+use Drupal\search_api\IndexInterface;
+
+/**
+ * Implements hook_search_api_index_update().
+ *
+ * When the search API index is updated, check the fields are correctly
+ * setup in Postgres.
+ */
+function ai_provider_amazeeio_search_api_index_update(IndexInterface $index): void {
+  $server = $index->getServerInstance();
+  if (!($server->getBackend() instanceof SearchApiAiSearchBackend)) {
+    return;
+  }
+  $backend_config = $server->getBackendConfig();
+  if (!isset($backend_config['database'])) {
+    return;
+  }
+  if ($backend_config['database'] !== 'amazeeio_vector_db') {
+    return;
+  }
+  $ai_vdb_provider_postgres = \Drupal::service('ai.vdb_provider')->createInstance('amazeeio_vector_db');
+  $connection = $ai_vdb_provider_postgres->getConnection($backend_config['database_settings']['database_name']);
+  \Drupal::service('ai_provider_amazeeio.postgres_client')->updateFields(
+    $index->getFields(),
+    $backend_config['database_settings']['collection'],
+    $connection,
+  );
+}
+
+/**
+ * Implements hook_user_logout().
+ */
+function ai_provider_amazeeio_user_logout(AccountInterface $account): void {
+  // Log the user out of amazee.ai during Drupal logout.
+  _ai_provider_amazeeio_amazee_logout();
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function ai_provider_amazeeio_user_login(UserInterface $account): void {
+  // Log the user out of amazee.ai during log in in case the last Drupal logout was
+  // due to timeout/inactivity.
+  _ai_provider_amazeeio_amazee_logout();
+}
+
+/**
+ * Helper function to log user out of amazee.ai system.
+ */
+function _ai_provider_amazeeio_amazee_logout(): void {
+  /** @var \Drupal\ai_provider_amazeeio\AmazeeIoApi\ClientInterface $amazee_client */
+  $amazee_client = \Drupal::service('ai_provider_amazeeio.api_client');
+  $amazee_client->logout();
+
+  /** @var \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store */
+  $temp_store = \Drupal::service('tempstore.private');
+  try {
+    $temp_store->get('amazeeio_ai')->delete('access_token');
+  }
+  catch (TempStoreException $e) {
+    // Log error but do nothing as this shouldn't affect the user.
+    \Drupal::logger('ai_provider_amazeeio')->error('Failed to log out of amazee.ai: @error', ['@error' => $e->getMessage()]);
+  }
+}
